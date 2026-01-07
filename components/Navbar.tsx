@@ -5,27 +5,25 @@ const Navbar = () => {
 
 
     return ( 
-        <nav className="grid grid-cols-2 h-8 w-full bg-white/90 border-gray-800 px-4 items-center z-50">
+        <nav className="grid grid-cols-2 h-12 w-full bg-white/90 border-gray-800 px-4 items-center z-50 shadow-sm">
             
             {/*Logo*/}
             <div className=" flex items-center gap-3">
                 <div className="flex items-center cursor-pointer">
-                    <div className="w-16 h-16 flex items-center justify-center transition-transform group-hover:scale-150">
+                    <div className="w-16 h-10 flex items-center justify-center transition-transform group-hover:scale-150">
                         <Image src={Logo} alt="annot8 logo" className="h-20 w-auto"/>
                     </div>
                 </div>
             </div>
 
             <div className="flex justify-end gap-3">
-                <button
-                    // onClick={onDownload}
-                    className=" flex gap-2"
+                <button /* onClick={onDownload} */ className=" flex gap-2"
                 >
                     <div className="flex items-center ">
-                        <BookOpen size={20}
-                        className="relative top-0.5"/>
+                        <BookOpen size={18}
+                        className="relative top-px"/>
                     </div>
-                    <span className=" leading-tight inline-flex items-center text-md">How it works</span>               
+                    <span className=" leading-tight inline-flex items-center text-sm">How it works</span>               
                 </button>
             </div>
 
