@@ -16,14 +16,14 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 font-dm-sans text-sm tracking-tighter">
                 <button /* onClick={onDownload} */ className=" flex gap-2"
                 >
                     <div className="flex items-center ">
                         <BookOpen size={18}
                         className="relative top-px"/>
                     </div>
-                    <span className=" leading-tight inline-flex items-center text-sm">How it works</span>               
+                    <span className=" inline-flex items-center">How it works</span>               
                 </button>
             </div>
 
