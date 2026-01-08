@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist, Geist_Mono, IBM_Plex_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,6 +11,26 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  weight: ["400"],
+  style: "italic",
+  subsets: ["latin"]
+})
+
+const ibmPlexMono = IBM_Plex_Mono ({
+  variable: "--font-ibm-plex-mono",
+  weight: "400",
+  style: "normal",
+  subsets: ["latin"]
+})
+
+const dmSans = DM_Sans ({
+  variable: "--font-dm-sans",
+  weight: ["400", "700"],
+  style: "normal",
+})
 
 export const metadata: Metadata = {
   title: "Annot8",
@@ -25,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable} ${dmSans.variable} antialiased`}
       >
         {children}
       </body>
