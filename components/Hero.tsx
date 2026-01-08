@@ -7,7 +7,7 @@ const Hero = () => {
             </h3>
         </div>
 
-        <div className='text-6xl my-4 font-dm-sans font-light tracking-tight'>
+        <div className='text-6xl my-4 font-dm-sans font-light tracking-tighter'>
             <h1>
                 Read, <span className="font-instrument-serif">Doodle</span>, Write
             </h1>
