@@ -16,9 +16,8 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 font-dm-sans text-sm tracking-tighter">
-                <button /* onClick={onDownload} */ className=" flex gap-2"
-                >
+            <div className="flex justify-end gap-3 font-dm-sans text-sm tracking-tighter transition-transform duration-300 hover:scale-105 origin-right">
+                <button /* onClick={onDownload} */ className="flex gap-2 cursor-pointer">
                     <div className="flex items-center ">
                         <BookOpen size={18}
                         className="relative top-px"/>
