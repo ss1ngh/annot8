@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Geist, Geist_Mono, IBM_Plex_Mono, Instrument_Serif, Whisper } from "next/font/google";
+import { DM_Sans, Geist, Geist_Mono, IBM_Plex_Mono, Instrument_Serif} from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,12 +32,6 @@ const dmSans = DM_Sans ({
   style: "normal",
 })
 
-const whisper = Whisper ({
-  variable: "--font-whisper",
-  weight: "400",
-  style: "normal",
-  subsets: ["latin"]
-})
 
 
 
@@ -54,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable} ${whisper.variable} ${dmSans.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable} ${dmSans.variable} antialiased`}
       >
         {children}
       </body>
