@@ -5,22 +5,29 @@ import { TypeAnimation } from "react-type-animation"
 const Hero = () => {
   return (
     <section className='h-screen w-full text-center py-10'>
-        <div className='text-4xl font-extralight py-3 font-instrument-serif tracking-tight'>
-            <h3>
-                Dual-View Workspace for PDF note taking
-            </h3>
-        </div>
+        <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-5xl md:text-7xl font-medium text-black leading-[1.1] mb-6 tracking-tighter">
 
-        <div className='text-6xl pt-0 py-6 font-sans  tracking-tighter'>
-            <h1>
-                Read<span className="font-instrument-serif">,</span> <span className="font-instrument-serif">Doodle</span><span className="font-instrument-serif">,</span> Write
+            Read,{" "}
+            <span className="italic font-instrument-serif font-normal tracking-normal">
+                Doodle
+            </span>
+            , <br className="hidden sm:block" />
+            & Write.
             </h1>
-        </div>
 
-        <div className="py-6">
-            <Link href={'/upload'} className='inline-block bg-black text-white rounded-3xl px-4 py-2 hover:scale-95 font-ibm-plex-mono cursor-pointer'>
+            <p className="text-sm md:text-base text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed font-ibm-plex-mono">
+            A dual-view workspace designed for seamless PDF note-taking.
+            Combine your reading and writing workflow in one place
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
+            <Link
+                href="/upload"
+                className='inline-block bg-black text-white rounded-3xl px-5 py-3 hover:scale-95 font-ibm-plex-mono cursor-pointer'>
                 Get Started
             </Link>
+            </div>
         </div>
     </section>
   )
