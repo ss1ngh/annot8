@@ -23,7 +23,7 @@ const Hero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
             <Link
-                href="/upload"
+                href="/workspace"
                 className='inline-block bg-black text-white rounded-3xl px-5 py-3 hover:scale-95 font-ibm-plex-mono cursor-pointer'>
                 Get Started
             </Link>
