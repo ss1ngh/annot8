@@ -1,3 +1,7 @@
+'use client'
+import Link from "next/link"
+import { TypeAnimation } from "react-type-animation"
+
 const Hero = () => {
   return (
     <section className='h-screen w-full text-center py-10'>
@@ -7,16 +11,30 @@ const Hero = () => {
             </h3>
         </div>
 
-        <div className='text-6xl my-4 font-dm-sans font-sans tracking-tighter'>
+        <div className='text-6xl my-4 font-sans tracking-tighter'>
             <h1>
-                Read, <span className="font-instrument-serif">Doodle</span>, Write
+                Read,{' '}
+                <TypeAnimation
+                    sequence={[
+                        'Doodle',
+                        3000,
+                        'Annotate',
+                        3000
+                    ]}
+                    wrapper="span"
+                    speed={20}
+                    className="font-instrument-serif inline-block"
+                    repeat={Infinity}
+                    cursor={true} 
+                />
+                , Write
             </h1>
         </div>
 
         <div className="py-6">
-            <button className='border-2 border-black bg-black text-white rounded-3xl px-4 py-2 hover:border-white font-ibm-plex-mono cursor-pointer'>
+            <Link href={'/upload'} className='border-2 border-black bg-black text-white rounded-3xl px-4 py-2 hover:border-white font-ibm-plex-mono cursor-pointer'>
                 Get Started
-            </button>
+            </Link>
         </div>
     </section>
   )
