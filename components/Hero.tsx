@@ -7,14 +7,14 @@ const Hero = () => {
             </h3>
         </div>
 
-        <div className='text-6xl my-4 font-dm-sans font-light tracking-tighter'>
+        <div className='text-6xl my-4 font-dm-sans font-sans tracking-tighter'>
             <h1>
                 Read, <span className="font-instrument-serif">Doodle</span>, Write
             </h1>
         </div>
 
         <div className="py-6">
-            <button className='border-2 border-black rounded-3xl px-4 py-2 hover:border-gray-400 font-ibm-plex-mono'>
+            <button className='border-2 border-black bg-black text-white rounded-3xl px-4 py-2 hover:border-white font-ibm-plex-mono cursor-pointer'>
                 Get Started
             </button>
         </div>
