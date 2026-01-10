@@ -1,64 +1,70 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, FileText } from 'lucide-react';
+import { X, Upload, FileText} from 'lucide-react';
 import usePDFStore from '@/store/pdfStore';
 
-interface PDFDropzoneProps {
-  onClose: () => void;
+interface PDFDropzoneProps { 
+    onClose : () => void;
 }
 
-export default function PDFDropzone({ onClose }: PDFDropzoneProps) {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  
-  const setFile = usePDFStore((state) => state.setFile);
-  const clearFile = usePDFStore((state) => state.clearFile);
+export default function PDFDropzone( {onClose} : PDFDropzoneProps) {
+    const [uploadedFile, setUploadedFile] = useState<File | null> (null);
+    const [error, setError] = useState<string | null> (null);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { 'application/pdf': ['.pdf'] },
-    maxFiles: 1,
-    maxSize: 25 * 1024 * 1024,
-    onDrop: (acceptedFiles, rejectedFiles) => {
-      if (rejectedFiles.length > 0) {
-        const rejection = rejectedFiles[0];
-        if (rejection.errors[0]?.code === 'file-too-large') {
-          setError('File size exceeds 25MB limit');
-        } else {
-          setError('Invalid file type. Please upload a PDF');
+    const setFile = usePDFStore((state) => state.setFile);
+    const clearFile = usePDFStore((state) => state.clearFile);
+
+    const onDrop = useCallback((acceptedFiles : File[], rejectedFiles : any[]) => {
+
+        //handle errors
+        if(rejectedFiles.length > 0){
+            const rejection = rejectedFiles[0];
+            if(rejection.errors[0]?.code === 'file-too-large'){
+                setError('File size exceeds 25MB limit');
+            }
+            else{
+                setError('Invalid file type. Please upload a PDF')
+            }
+            return;
         }
-        return;
-      }
-      if (acceptedFiles.length > 0) {
+
+        if(acceptedFiles.length > 0){
+            setError(null);
+            setUploadedFile(acceptedFiles[0]);
+        }
+    }, []);
+
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({
+        maxFiles : 1,
+        maxSize : 25 * 1024 * 1024,
+        onDrop,
+    });
+
+    const handleRemoveFile = () => {
+        setUploadedFile(null);
+        clearFile();
         setError(null);
-        setUploadedFile(acceptedFiles[0]);
-      }
-    },
-  });
+    };
 
-  const handleRemoveFile = () => {
-    setUploadedFile(null);
-    clearFile(); 
-    setError(null);
-  };
+    const handleProceed= () => {
+        if(uploadedFile) {
+            setFile(uploadedFile);
+            onClose();
+        }
+    };
 
-  const handleProceed = () => {
-    if (uploadedFile) {
-      setFile(uploadedFile);
-      onClose();
-    }
-  };
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
 
-  return (
+    return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-300">
         
