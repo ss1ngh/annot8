@@ -37,6 +37,7 @@ export default function PDFDropzone( {onClose} : PDFDropzoneProps) {
     }, []);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
+        accept: { 'application/pdf' : ['.pdf'] },
         maxFiles : 1,
         maxSize : 25 * 1024 * 1024,
         onDrop,
