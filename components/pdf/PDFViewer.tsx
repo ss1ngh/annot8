@@ -138,7 +138,7 @@ export default function PDFViewer() {
   if (!pdfUrl) return null;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-50">
       <Toolbar
         pageNumber={pageNumber}
         numPages={numPages}
@@ -152,7 +152,7 @@ export default function PDFViewer() {
       />
 
       <div className={`flex flex-1 overflow-hidden ${isMobileView ? 'flex-col' : ''}`}>
-        <div ref={pageRef} className={`${isMobileView ? 'h-1/2' : 'w-[60%]'} overflow-auto p-4 bg-gray-200 flex justify-center`}>
+        <div ref={pageRef} className={`${isMobileView ? 'h-1/2' : 'w-[60%]'} overflow-auto p-2 bg-gray-50 flex justify-center`}>
           <div className="relative inline-block">
             <Document file={pdfUrl} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
               <Page pageNumber={pageNumber} scale={scale} rotate={rotation} renderTextLayer={false} renderAnnotationLayer={false} />
