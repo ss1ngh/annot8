@@ -3,14 +3,14 @@
 import { Edit3, Eye, FileCode, FileText, Upload } from "lucide-react";
 import { useRef, useCallback, useMemo, useEffect, useState, JSX } from "react"
 
-interface NotesPanelProps{
-    onSave : (format : 'md' | 'txt') => void;
-    onPageJump: (page:number) => void;
-    currentPage : number;
-    totalPages : number;
-    isMobileView? : boolean;
-    value : string;
-    onChange? : (notes : string) => void;
+interface NotesPanelProps {
+    onSave: (format: 'md' | 'txt') => void;
+    onPageJump: (page: number) => void;
+    currentPage: number;
+    totalPages: number;
+    isMobileView?: boolean;
+    value: string;
+    onChange?: (notes: string) => void;
 }
 
 
@@ -22,21 +22,21 @@ export default function NotesPanel({
     isMobileView,
     value = '',
     onChange
-} : NotesPanelProps) {
+}: NotesPanelProps) {
     const [mode, setMode] = useState<'edit' | 'preview'>('edit');
     const [localNotes, setLocalNotes] = useState(value);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const debounceRef = useRef <NodeJS.Timeout | null>(null);
+    const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
 
-    useEffect(()=>{
+    useEffect(() => {
         setLocalNotes(value);
     }, [value]);
 
-    const handleNotesChange = useCallback((newNotes : string) => {
+    const handleNotesChange = useCallback((newNotes: string) => {
         setLocalNotes(newNotes);
 
-        if(debounceRef.current) {
+        if (debounceRef.current) {
             clearTimeout(debounceRef.current);
         }
 
@@ -47,7 +47,7 @@ export default function NotesPanel({
 
     useEffect(() => {
         return () => {
-            if(debounceRef.current){
+            if (debounceRef.current) {
                 clearTimeout(debounceRef.current);
             }
         };
@@ -70,8 +70,8 @@ export default function NotesPanel({
                     key={match.index}
                     onClick={() => onPageJump(pageNum)}
                     className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-medium transition-colors ${isCurrentPage
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                         }`}
                 >
                     📄 Page {pageNum}
@@ -131,10 +131,10 @@ export default function NotesPanel({
     }, [localNotes, parsePageTags]);
 
     //load notes from file
-    const handleLoad = useCallback((e : React.ChangeEvent<HTMLInputElement>) => {
+    const handleLoad = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
-        if(!file) return 0;
+        if (!file) return 0;
 
         const reader = new FileReader();
         reader.addEventListener('load', (event) => {
@@ -214,7 +214,16 @@ export default function NotesPanel({
                         className="w-full h-full resize-none focus:outline-none text-gray-800 font-mono text-sm"
                     />
                 ) : (
-                    <div className="prose prose-sm max-w-none">
+                    <div
+                        className="prose prose-sm max-w-none"
+                        onClick={(e) => {
+                            const target = e.target as HTMLElement;
+                            const pageNum = target.getAttribute('data-page');
+                            if (pageNum) {
+                                onPageJump(parseInt(pageNum, 10));
+                            }
+                        }}
+                    >
                         {renderedPreview}
                     </div>
                 )}
