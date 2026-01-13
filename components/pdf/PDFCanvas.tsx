@@ -73,7 +73,21 @@ export default function PDFCanvas ({
       saveTimeoutRef.current = null;
     }, 1000);
   }, [onAnnotationsChange]);
-  
+
+  //load up saved annotations on page change
+  useEffect(() => {
+    const canvas = fabricRef.current;
+
+    if(!canvas) return;
+
+    canvas.clear();
+
+    if(savedAnnotations){
+      canvas.loadFromJSON(savedAnnotations, () =>{
+        canvas.renderAll();
+      });
+    }
+  }, [pageNumber, savedAnnotations]);
 
   return (
     <div>PDFCanvas</div>
