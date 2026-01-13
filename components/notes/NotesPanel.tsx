@@ -152,30 +152,30 @@ export default function NotesPanel({
     }, [currentPage, localNotes, handleNotesChange]);
 
     return (
-        <div className="flex flex-col h-full bg-white border-l">
+        <div className="flex flex-col h-full bg-white">
             {/* Header */}
-            <div className="flex items-center justify-between p-3 border-b bg-gray-50">
+            <div className="flex items-center justify-between pb-2 px-4 text-[12px] font-semibold bg-gray-50">
                 <div className="flex gap-1">
                     <button
                         onClick={() => setMode('edit')}
-                        className={`p-2 rounded transition-colors ${mode === 'edit' ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
+                        className={`px-4 rounded transition-colors ${mode === 'edit' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}
                         title="Edit"
                     >
-                        <Edit3 size={18} />
+                        Edit
                     </button>
                     <button
                         onClick={() => setMode('preview')}
-                        className={`p-2 rounded transition-colors ${mode === 'preview' ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
+                        className={`p-2 rounded transition-colors ${mode === 'preview' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}
                         title="Preview"
                     >
-                        <Eye size={18} />
+                        Preview
                     </button>
                 </div>
 
                 <div className="flex gap-1">
                     <button
                         onClick={insertPageTag}
-                        className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                        className="px-2 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
                         title="Insert current page tag"
                     >
                         + Page {currentPage}
@@ -210,7 +210,7 @@ export default function NotesPanel({
                     <textarea
                         value={localNotes}
                         onChange={(e) => handleNotesChange(e.target.value)}
-                        placeholder={`Write your notes here...\n\nTip: Use [page:${currentPage}] to link to current page`}
+                        placeholder={`Write your notes here...\n\nTip:  - Use [page:${currentPage}] to link to current page \n\n      - Use Markdown for formatting`}
                         className="w-full h-full resize-none focus:outline-none text-gray-800 font-mono text-sm"
                     />
                 ) : (
@@ -230,7 +230,7 @@ export default function NotesPanel({
             </div>
 
             {/* Footer */}
-            <div className="p-2 border-t bg-gray-50 text-xs text-gray-500 text-center">
+            <div className="p-2 bg-gray-50 text-xs text-gray-500 text-center">
                 Page {currentPage} / {totalPages} • {localNotes.length} chars
             </div>
 
