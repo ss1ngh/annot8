@@ -47,7 +47,10 @@ export default function PDFCanvas({
     onCanvasReady(canvas);
 
     // Initial dimension sync - wait for PDF to render
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      // Check if canvas is still valid (not disposed)
+      if (!fabricRef.current) return;
+
       const pdfPage = containerRef.current?.querySelector('.react-pdf__Page');
       if (pdfPage) {
         canvas.setDimensions({
@@ -63,6 +66,7 @@ export default function PDFCanvas({
     canvas.on('object:removed', () => saveAnnotations());
 
     return () => {
+      clearTimeout(timeoutId);
       canvas.dispose();
       fabricRef.current = null;
     }
