@@ -4,9 +4,9 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div>
-      <Navbar/>
-      <Hero/>
+    <div className="h-screen overflow-hidden">
+      <Navbar />
+      <Hero />
     </div>
   )
 }
