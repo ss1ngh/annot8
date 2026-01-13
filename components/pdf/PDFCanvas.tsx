@@ -1,21 +1,22 @@
 'use client'
 
 import { useEffect, useCallback, useRef, useReducer } from "react";
-import  fabric  from 'fabric';
+import * as fabric from 'fabric';
 
 interface PDFCanvasProps {
-  selectedTool : string;
-  pageNumber : number;
-  scale : number;
-  rotation : number;
-  onCanvasReady : (canvas : fabric.Canvas) => void;
-  containerRef : React.RefObject<HTMLDivElement>;
-  savedAnnotations? : string;
-  onAnnotationsChange? : (json : string) => void
+  selectedTool: string;
+  pageNumber: number;
+  scale: number;
+  rotation: number;
+  onCanvasReady: (canvas: fabric.Canvas) => void;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  savedAnnotations?: string;
+  onAnnotationsChange?: (json: string) => void;
+  onToolSelect?: (tool: string) => void;
 }
 
 
-export default function PDFCanvas ({
+export default function PDFCanvas({
   selectedTool,
   pageNumber,
   scale,
@@ -23,69 +24,91 @@ export default function PDFCanvas ({
   onCanvasReady,
   containerRef,
   savedAnnotations,
-  onAnnotationsChange
-} : PDFCanvasProps) {
+  onAnnotationsChange,
+  onToolSelect
+}: PDFCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
-  const isDrawingShape = useRef(false);
-  const shapeBeingDrawn = useRef<fabric.Object | null>(null);
-  const startPoint = useRef<{x : number; y : number} | null>(null);
-
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPageRef = useRef<number>(pageNumber);
+  const isLoadingRef = useRef<boolean>(false);
 
   //initializing fabric canvas
   useEffect(() => {
-    if(!canvasRef.current) return;
+    if (!canvasRef.current) return;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
-      isDrawingMode : false,
-      selection : true
+      isDrawingMode: false,
+      selection: true
     });
 
     fabricRef.current = canvas;
     onCanvasReady(canvas);
 
+    // Initial dimension sync - wait for PDF to render
+    setTimeout(() => {
+      const pdfPage = containerRef.current?.querySelector('.react-pdf__Page');
+      if (pdfPage) {
+        canvas.setDimensions({
+          width: pdfPage.clientWidth,
+          height: pdfPage.clientHeight,
+        });
+        canvas.renderAll();
+      }
+    }, 200);
+
     canvas.on('object:added', () => saveAnnotations());
     canvas.on('object:modified', () => saveAnnotations());
     canvas.on('object:removed', () => saveAnnotations());
 
-    return() => {
+    return () => {
       canvas.dispose();
       fabricRef.current = null;
     }
   }, []);
 
   //debounce before saving
-  const saveAnnotations = useCallback(()=> {
+  const saveAnnotations = useCallback(() => {
     const canvas = fabricRef.current;
 
-    if(!canvas || !onAnnotationsChange) return;
+    // Skip saving if we're in the middle of loading annotations
+    if (!canvas || !onAnnotationsChange || isLoadingRef.current) return;
 
     //reset/clear timer
-    if(saveTimeoutRef.current){
+    if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
     //set new timer
     saveTimeoutRef.current = setTimeout(() => {
-      const json = JSON.stringify(canvas.toJSON());
-      onAnnotationsChange(json);
+      if (!isLoadingRef.current) {
+        const json = JSON.stringify(canvas.toJSON());
+        onAnnotationsChange(json);
+      }
       saveTimeoutRef.current = null;
     }, 1000);
   }, [onAnnotationsChange]);
 
-  //load up saved annotations on page change
+  //load up saved annotations on page change ONLY
   useEffect(() => {
     const canvas = fabricRef.current;
+    if (!canvas) return;
 
-    if(!canvas) return;
+    // Only load annotations when page actually changes
+    if (prevPageRef.current !== pageNumber) {
+      prevPageRef.current = pageNumber;
+      isLoadingRef.current = true;
 
-    canvas.clear();
+      canvas.clear();
 
-    if(savedAnnotations){
-      canvas.loadFromJSON(savedAnnotations, () =>{
-        canvas.renderAll();
-      });
+      if (savedAnnotations) {
+        canvas.loadFromJSON(savedAnnotations, () => {
+          canvas.renderAll();
+          isLoadingRef.current = false;
+        });
+      } else {
+        isLoadingRef.current = false;
+      }
     }
   }, [pageNumber, savedAnnotations]);
 
@@ -93,155 +116,139 @@ export default function PDFCanvas ({
   //so the drawings are synced on scaling the pdf page 
   useEffect(() => {
     const canvas = fabricRef.current;
-    if(!canvas || !containerRef.current) return;
+    if (!canvas || !containerRef.current) return;
 
     const syncDimensions = () => {
       const pdfPage = containerRef.current?.querySelector('.react-pdf__Page');
-      if(pdfPage) {
-        canvas.width = pdfPage.clientWidth;
-        canvas.height = pdfPage.clientHeight;
-        canvas.renderAll();
-      } 
+      if (pdfPage) {
+        const width = pdfPage.clientWidth;
+        const height = pdfPage.clientHeight;
+        if (width > 0 && height > 0) {
+          canvas.setDimensions({ width, height });
+          canvas.renderAll();
+        }
+      }
     };
 
-    const timeout = setTimeout(syncDimensions, 100);
+    // Initial sync with a delay to wait for PDF rendering
+    const timeout = setTimeout(syncDimensions, 300);
 
-    //resize canvas on browser window resize
+    // Use ResizeObserver for reliable size tracking
+    const resizeObserver = new ResizeObserver(() => {
+      syncDimensions();
+    });
+
+    // Observe the container for any size changes
+    const pdfPage = containerRef.current?.querySelector('.react-pdf__Page');
+    if (pdfPage) {
+      resizeObserver.observe(pdfPage);
+    } else {
+      // If PDF page not ready yet, also observe container and try again
+      resizeObserver.observe(containerRef.current);
+    }
+
+    // Also handle window resize
     window.addEventListener('resize', syncDimensions);
 
     return () => {
       clearTimeout(timeout);
+      resizeObserver.disconnect();
       window.removeEventListener('resize', syncDimensions);
     }
   }, [scale, rotation, pageNumber, containerRef]);
 
-
   //handle tool changes
   useEffect(() => {
-        const canvas = fabricRef.current;
-        if (!canvas) return;
+    const canvas = fabricRef.current;
+    if (!canvas) return;
 
-        canvas.isDrawingMode = false;
-        canvas.selection = true;
-        canvas.off('mouse:down');
-        canvas.off('mouse:move');
-        canvas.off('mouse:up');
-        isDrawingShape.current = false;
+    // Reset canvas state
+    canvas.isDrawingMode = false;
+    canvas.selection = true;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = 'move';
 
-        if (selectedTool === 'draw') {
-            canvas.isDrawingMode = true;
-            const brush = new fabric.PencilBrush(canvas);
-            brush.color = '#000000';
-            brush.width = 2;
-            canvas.freeDrawingBrush = brush;
-        } 
-        else if (selectedTool === 'highlight') {
-            canvas.isDrawingMode = true;
-            const brush = new fabric.PencilBrush(canvas);
-            brush.color = 'rgba(255, 255, 0, 0.4)';
-            brush.width = 20;
-            canvas.freeDrawingBrush = brush;
-        } 
-        else if (selectedTool === 'rectangle' || selectedTool === 'circle') {
-            canvas.selection = false;
+    // Handle drawing tools (pen and highlighter)
+    if (selectedTool === 'draw') {
+      canvas.isDrawingMode = true;
+      const brush = new fabric.PencilBrush(canvas);
+      brush.color = '#000000';
+      brush.width = 2;
+      canvas.freeDrawingBrush = brush;
+    }
+    else if (selectedTool === 'highlight') {
+      canvas.isDrawingMode = true;
+      const brush = new fabric.PencilBrush(canvas);
+      brush.color = 'rgba(255, 255, 0, 0.4)';
+      brush.width = 20;
+      canvas.freeDrawingBrush = brush;
+    }
+    // Handle shape tools - add shape at center immediately when tool is selected
+    else if (selectedTool === 'rectangle') {
+      const center = canvas.getCenterPoint();
+      const rect = new fabric.Rect({
+        left: center.x,
+        top: center.y,
+        width: 100,
+        height: 100,
+        fill: 'transparent',
+        stroke: '#000000',
+        strokeWidth: 2,
+        originX: 'center',
+        originY: 'center',
+      });
+      canvas.add(rect);
+      canvas.setActiveObject(rect);
+      canvas.renderAll();
+      // Clear tool selection after adding shape
+      onToolSelect?.('');
+    }
+    else if (selectedTool === 'circle') {
+      const center = canvas.getCenterPoint();
+      const circle = new fabric.Circle({
+        left: center.x,
+        top: center.y,
+        radius: 50,
+        fill: 'transparent',
+        stroke: '#000000',
+        strokeWidth: 2,
+        originX: 'center',
+        originY: 'center',
+      });
+      canvas.add(circle);
+      canvas.setActiveObject(circle);
+      canvas.renderAll();
+      // Clear tool selection after adding shape
+      onToolSelect?.('');
+    }
+    else if (selectedTool === 'text') {
+      const center = canvas.getCenterPoint();
+      const text = new fabric.IText('Click to edit', {
+        left: center.x,
+        top: center.y,
+        fontSize: 20,
+        fill: '#000000',
+        originX: 'center',
+        originY: 'center',
+      });
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      text.enterEditing();
+      canvas.renderAll();
+      // Clear tool selection after adding text
+      onToolSelect?.('');
+    }
 
-            canvas.on('mouse:down', (opt: any) => {
-                const pointer = canvas.getScenePoint(opt.e);
-                startPoint.current = { x: pointer.x, y: pointer.y };
-                isDrawingShape.current = true;
+  }, [selectedTool, onToolSelect]);
 
-                if (selectedTool === 'rectangle') {
-                    shapeBeingDrawn.current = new fabric.Rect({
-                        left: pointer.x,
-                        top: pointer.y,
-                        width: 0,
-                        height: 0,
-                        fill: 'transparent',
-                        stroke: '#000000',
-                        strokeWidth: 2,
-                        selectable: true,
-                    });
-                } else {
-                    shapeBeingDrawn.current = new fabric.Ellipse({
-                        left: pointer.x,
-                        top: pointer.y,
-                        rx: 0,
-                        ry: 0,
-                        fill: 'transparent',
-                        stroke: '#000000',
-                        strokeWidth: 2,
-                        selectable: true,
-                    });
-                }
-                
-                if (shapeBeingDrawn.current) {
-                    canvas.add(shapeBeingDrawn.current);
-                }
-            });
 
-            canvas.on('mouse:move', (opt: any) => {
-                if (!isDrawingShape.current || !shapeBeingDrawn.current || !startPoint.current) return;
-
-                const pointer = canvas.getScenePoint(opt.e);
-                
-                const width = Math.abs(pointer.x - startPoint.current.x);
-                const height = Math.abs(pointer.y - startPoint.current.y);
-                const newLeft = Math.min(pointer.x, startPoint.current.x);
-                const newTop = Math.min(pointer.y, startPoint.current.y);
-
-                if (selectedTool === 'rectangle') {
-                    (shapeBeingDrawn.current as fabric.Rect).set({
-                        left: newLeft,
-                        top: newTop,
-                        width: width,
-                        height: height,
-                    });
-                } else {
-                    (shapeBeingDrawn.current as fabric.Ellipse).set({
-                        left: newLeft,
-                        top: newTop,
-                        rx: width / 2,
-                        ry: height / 2,
-                    });
-                }
-                canvas.renderAll();
-            });
-
-            canvas.on('mouse:up', () => {
-                isDrawingShape.current = false;
-                shapeBeingDrawn.current = null;
-                startPoint.current = null;
-                saveAnnotations();
-            });
-        } 
-        else if (selectedTool === 'text') {
-            canvas.selection = false;
-
-            canvas.on('mouse:down', (opt: any) => {
-                const pointer = canvas.getScenePoint(opt.e);
-                const text = new fabric.IText('Type here', {
-                    left: pointer.x,
-                    top: pointer.y,
-                    fontSize: 16,
-                    fill: '#000000',
-                    editable: true,
-                });
-                
-                canvas.add(text);
-                canvas.setActiveObject(text);
-                text.enterEditing();
-            });
-        }
-
-    }, [selectedTool, saveAnnotations]);
-
-    
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute top-0 left-0 pointer-events-auto"
-      style={{ zIndex:10 }}
-    />
+    <div
+      className="absolute top-0 left-0 w-full h-full"
+      style={{ zIndex: 10, pointerEvents: 'auto' }}
+    >
+      <canvas ref={canvasRef} />
+    </div>
   );
 }
 
