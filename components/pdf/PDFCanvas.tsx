@@ -31,6 +31,7 @@ export default function PDFCanvas({
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevPageRef = useRef<number>(pageNumber);
+  const prevScaleRef = useRef<number>(scale);
   const isLoadingRef = useRef<boolean>(false);
 
   //initializing fabric canvas
@@ -112,8 +113,7 @@ export default function PDFCanvas({
     }
   }, [pageNumber, savedAnnotations]);
 
-  //sync pdf page size with canvas size
-  //so the drawings are synced on scaling the pdf page 
+  //sync pdf page size with canvas size AND scale objects when zoom changes
   useEffect(() => {
     const canvas = fabricRef.current;
     if (!canvas || !containerRef.current) return;
@@ -129,6 +129,25 @@ export default function PDFCanvas({
         }
       }
     };
+
+    // Scale all objects when zoom level changes
+    if (prevScaleRef.current !== scale) {
+      const scaleRatio = scale / prevScaleRef.current;
+
+      canvas.getObjects().forEach((obj) => {
+        // Scale the object's position
+        obj.set({
+          left: (obj.left || 0) * scaleRatio,
+          top: (obj.top || 0) * scaleRatio,
+          scaleX: (obj.scaleX || 1) * scaleRatio,
+          scaleY: (obj.scaleY || 1) * scaleRatio,
+        });
+        obj.setCoords();
+      });
+
+      prevScaleRef.current = scale;
+      canvas.renderAll();
+    }
 
     // Initial sync with a delay to wait for PDF rendering
     const timeout = setTimeout(syncDimensions, 300);
