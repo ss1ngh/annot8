@@ -89,6 +89,32 @@ export default function PDFCanvas ({
     }
   }, [pageNumber, savedAnnotations]);
 
+  //sync pdf page size with canvas size
+  //so the drawings are synced on scaling the pdf page 
+  useEffect(() => {
+    const canvas = fabricRef.current;
+    if(!canvas || !containerRef.current) return;
+
+    const syncDimensions = () => {
+      const pdfPage = containerRef.current?.querySelector('.react-pdf__Page');
+      if(pdfPage) {
+        canvas.width = pdfPage.clientWidth;
+        canvas.height = pdfPage.clientHeight;
+        canvas.renderAll();
+      } 
+    };
+
+    const timeout = setTimeout(syncDimensions, 100);
+
+    //resize canvas on browser window resize
+    window.addEventListener('resize', syncDimensions);
+
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener('resize', syncDimensions);
+    }
+  }, [scale, rotation, pageNumber, containerRef]);
+
   return (
     <div>PDFCanvas</div>
   )
