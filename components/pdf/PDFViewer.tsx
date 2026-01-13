@@ -152,8 +152,8 @@ export default function PDFViewer() {
       />
 
       <div className={`flex flex-1 overflow-hidden ${isMobileView ? 'flex-col' : ''}`}>
-        <div ref={pageRef} className={`${isMobileView ? 'h-1/2' : 'flex-1'} overflow-auto p-4 bg-gray-200`}>
-          <div className="relative inline-block mx-auto">
+        <div ref={pageRef} className={`${isMobileView ? 'h-1/2' : 'w-[60%]'} overflow-auto p-4 bg-gray-200 flex justify-center`}>
+          <div className="relative inline-block">
             <Document file={pdfUrl} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
               <Page pageNumber={pageNumber} scale={scale} rotate={rotation} renderTextLayer={false} renderAnnotationLayer={false} />
             </Document>
@@ -172,7 +172,7 @@ export default function PDFViewer() {
         </div>
 
         {(!isMobileView || showNotes) && (
-          <div className={`${isMobileView ? 'h-1/2' : 'w-96'}`}>
+          <div className={`${isMobileView ? 'h-1/2' : 'w-[40%]'}`}>
             <NotesPanel
               onSave={handleSaveNotes}
               onPageJump={jumpToPage}
