@@ -9,13 +9,13 @@ import {
     Pencil,
     Type,
     Square,
-    Circle 
+    Circle
 } from 'lucide-react';
 
 
 interface ToolbarProps {
-    pageNumber : number;
-    numPages : number | null;
+    pageNumber: number;
+    numPages: number | null;
     scale: number;
     onPageChange: (offset: number) => void;
     onZoom: (delta: number) => void;
@@ -26,7 +26,7 @@ interface ToolbarProps {
 }
 
 
-export default function Toolbar( {
+export default function Toolbar({
     pageNumber,
     numPages,
     scale,
@@ -36,7 +36,7 @@ export default function Toolbar( {
     selectedTool,
     onToolSelect,
     onDownload
-} : ToolbarProps) {
+}: ToolbarProps) {
 
     const tools = [
         { id: 'highlight', icon: Highlighter, label: 'Highlight' },
@@ -47,7 +47,7 @@ export default function Toolbar( {
     ];
 
     return (
-        <div className='flex justify-between items-center px-4 py-2 bg-white border-b shadow-sm'>
+        <div className='flex justify-between items-center px-4 py-2 m-4 rounded-2xl bg-white shadow-md'>
 
             {/* page navigation */}
             <div className='flex items-center gap-2'>
@@ -57,19 +57,19 @@ export default function Toolbar( {
                     disabled={pageNumber <= 1}
                     className='p-2 rounded hover:bg-gray-100 disabled:opacity-50'
                 >
-                    <ChevronLeft size={20}/>
+                    <ChevronLeft size={20} />
                 </button>
 
                 <span className='text-sm font-medium'>
                     {pageNumber} / {numPages || '-'}
                 </span>
 
-                <button 
-                    onClick={()=> onPageChange(1)}
+                <button
+                    onClick={() => onPageChange(1)}
                     disabled={pageNumber >= (numPages || 1)}
                     className='p-2 rounded hover:bg-gray-100 disabled:opacity-50'
                 >
-                    <ChevronRight size={20}/>
+                    <ChevronRight size={20} />
                 </button>
             </div>
 
@@ -79,9 +79,9 @@ export default function Toolbar( {
                     <button
                         key={tool.id}
                         onClick={() => onToolSelect?.(tool.id)}
-                        className={`p-2 rounded transition-colors ${selectedTool === tool.id
-                            ? 'bg-black text-white'
-                            : 'hover:bg-gray-100'
+                        className={`p-2 mx-1 rounded transition-colors ${selectedTool === tool.id
+                            ? 'bg-blue-200 text-blue-600'
+                            : 'hover:bg-blue-100'
                             }`}
                         title={tool.label}
                     >
@@ -97,7 +97,7 @@ export default function Toolbar( {
                 </button>
 
                 <span className="text-sm w-12 text-center">{Math.round(scale * 100)}%</span>
-                
+
                 <button onClick={() => onZoom(0.1)} className="p-2 rounded hover:bg-gray-100">
                     <ZoomIn size={20} />
                 </button>
@@ -107,9 +107,9 @@ export default function Toolbar( {
                 </button>
 
                 {onDownload && (
-                <button onClick={onDownload} className="p-2 rounded hover:bg-gray-100">
-                    <Download size={20} />
-                </button>
+                    <button onClick={onDownload} className="p-2 rounded hover:bg-gray-100">
+                        <Download size={20} />
+                    </button>
                 )}
             </div>
         </div>
