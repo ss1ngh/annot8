@@ -49,7 +49,7 @@ export default function Toolbar( {
     return (
         <div className='flex justify-between items-center px-4 py-2 bg-white border-b shadow-sm'>
 
-            //page navigation
+            {/* page navigation */}
             <div className='flex items-center gap-2'>
 
                 <button
@@ -73,7 +73,7 @@ export default function Toolbar( {
                 </button>
             </div>
 
-            //annotation tools
+            {/* annotation tools */}
             <div>
                 {tools.map((tool) => (
                     <button
@@ -90,7 +90,7 @@ export default function Toolbar( {
                 ))}
             </div>
 
-            //zoom & rotate
+            {/* zoom & rotate */}
             <div className="flex items-center gap-2">
                 <button onClick={() => onZoom(-0.1)} className="p-2 rounded hover:bg-gray-100">
                     <ZoomOut size={20} />
