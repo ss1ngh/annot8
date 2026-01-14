@@ -1,7 +1,12 @@
+
+
 # annot8 📝
 
 > **Read, Doodle & Write.**
 > A beautiful, dual-view workspace designed for seamless PDF reading and note-taking.
+<br>
+
+<img width="1919" height="868" alt="image" src="https://github.com/user-attachments/assets/ca44ca56-f219-46cb-b7ab-62d80865b524" />
 
 ## 🌟 Introduction
 
