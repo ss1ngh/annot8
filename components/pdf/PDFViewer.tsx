@@ -18,7 +18,7 @@ export default function PDFViewer() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1.5);
   const [rotation, setRotation] = useState(0);
   const [selectedTool, setSelectedTool] = useState('');
   const [annotations, setAnnotations] = useState<Record<number, string>>({});
