@@ -67,20 +67,20 @@ Follow these steps to set up the project locally on your machine.
 
 ```
 annot8/
-├── app/                  # Next.js App Router pages
-│   ├── guide/            # Guide/Help page components
-│   ├── workspace/        # Main dual-view application logic
-│   ├── layout.tsx        # Root layout definition
-│   └── page.tsx          # Landing page
-├── components/           # Reusable UI components
-│   ├── landing/          # Components specific to the landing page (Hero, Navbar)
-│   ├── notes/            # Note-taking functionality (NotesPanel)
-│   ├── pdf/              # Core PDF logic (Viewer, Canvas, Dropzone)
-│   └── toolbar/          # Annotation tollbar UI
-├── lib/                  # Utility functions and configurations (PDF worker)
-├── public/               # Static assets (images, icons)
-├── store/                # Global state management (Zustand stores)
-└── ...config files       # (tailwind, typescript, next, eslint etc.)
+├── app/                  
+│   ├── guide/            
+│   ├── workspace/        
+│   ├── layout.tsx        
+│   └── page.tsx          
+├── components/           
+│   ├── landing/          
+│   ├── notes/            
+│   ├── pdf/              
+│   └── toolbar/          
+├── lib/                  
+├── public/              
+├── store/                
+└── ...config files       
 ```
 
 ## 🗺️ Routes
