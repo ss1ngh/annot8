@@ -1,7 +1,8 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 @theme {
   --font-instrument-serif: var(--font-instrument-serif);
   --font-ibm-plex-mono: var(--font-ibm-plex-mono);
-  --font-dm-sans : var(--font-dm-sans);
+  --font-dm-sans: var(--font-dm-sans);
 }
