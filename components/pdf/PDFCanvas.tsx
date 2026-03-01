@@ -32,6 +32,7 @@ export default function PDFCanvas({
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevPageRef = useRef<number>(pageNumber);
   const prevScaleRef = useRef<number>(scale);
+  const prevRotationRef = useRef<number>(rotation);
   const isLoadingRef = useRef<boolean>(false);
 
   //initializing fabric canvas
@@ -117,7 +118,7 @@ export default function PDFCanvas({
     }
   }, [pageNumber, savedAnnotations]);
 
-  //sync pdf page size with canvas size AND scale objects when zoom changes
+  //sync pdf page size with canvas size AND scale/rotate objects when zoom or rotation changes
   useEffect(() => {
     const canvas = fabricRef.current;
     if (!canvas || !containerRef.current) return;
@@ -134,12 +135,51 @@ export default function PDFCanvas({
       }
     };
 
+    // Rotate all objects when rotation changes
+    if (prevRotationRef.current !== rotation) {
+      const delta = ((rotation - prevRotationRef.current) % 360 + 360) % 360;
+      const oldW = canvas.width || 0;
+      const oldH = canvas.height || 0;
+
+      canvas.getObjects().forEach((obj) => {
+        const left = obj.left || 0;
+        const top = obj.top || 0;
+        const angle = obj.angle || 0;
+
+        let newLeft = left;
+        let newTop = top;
+        let newAngle = angle;
+
+        if (delta === 90) {
+          // 90° clockwise: (x, y) → (oldH - y, x)
+          newLeft = oldH - top;
+          newTop = left;
+          newAngle = angle + 90;
+        } else if (delta === 270) {
+          // 90° counter-clockwise: (x, y) → (y, oldW - x)
+          newLeft = top;
+          newTop = oldW - left;
+          newAngle = angle - 90;
+        } else if (delta === 180) {
+          // 180°: (x, y) → (oldW - x, oldH - y)
+          newLeft = oldW - left;
+          newTop = oldH - top;
+          newAngle = angle + 180;
+        }
+
+        obj.set({ left: newLeft, top: newTop, angle: ((newAngle % 360) + 360) % 360 });
+        obj.setCoords();
+      });
+
+      prevRotationRef.current = rotation;
+      canvas.renderAll();
+    }
+
     // Scale all objects when zoom level changes
     if (prevScaleRef.current !== scale) {
       const scaleRatio = scale / prevScaleRef.current;
 
       canvas.getObjects().forEach((obj) => {
-        // Scale the object's position
         obj.set({
           left: (obj.left || 0) * scaleRatio,
           top: (obj.top || 0) * scaleRatio,
@@ -166,11 +206,9 @@ export default function PDFCanvas({
     if (pdfPage) {
       resizeObserver.observe(pdfPage);
     } else {
-      // If PDF page not ready yet, also observe container and try again
       resizeObserver.observe(containerRef.current);
     }
 
-    // Also handle window resize
     window.addEventListener('resize', syncDimensions);
 
     return () => {
@@ -260,6 +298,37 @@ export default function PDFCanvas({
       canvas.renderAll();
       // Clear tool selection after adding text
       onToolSelect?.('');
+    }
+
+    else if (selectedTool === 'eraser') {
+      canvas.isDrawingMode = false;
+      canvas.selection = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.hoverCursor = 'crosshair';
+
+      const eraseHandler = (opt: fabric.TPointerEventInfo<MouseEvent>) => {
+        if (opt.e.buttons !== 1) return; // only erase while mouse is held down
+        const pointer = canvas.getScenePoint(opt.e);
+        const objectsToRemove = canvas.getObjects().filter((obj) => {
+          const bounds = obj.getBoundingRect();
+          const hitRadius = 16;
+          return (
+            pointer.x >= bounds.left - hitRadius &&
+            pointer.x <= bounds.left + bounds.width + hitRadius &&
+            pointer.y >= bounds.top - hitRadius &&
+            pointer.y <= bounds.top + bounds.height + hitRadius
+          );
+        });
+        if (objectsToRemove.length > 0) {
+          objectsToRemove.forEach((obj) => canvas.remove(obj));
+          canvas.renderAll();
+        }
+      };
+
+      canvas.on('mouse:move', eraseHandler);
+      return () => {
+        canvas.off('mouse:move', eraseHandler);
+      };
     }
 
   }, [selectedTool, onToolSelect]);

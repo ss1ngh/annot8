@@ -9,7 +9,10 @@ import {
     Pencil,
     Type,
     Square,
-    Circle
+    Circle,
+    Eraser,
+    FolderOpen,
+    Save,
 } from 'lucide-react';
 
 
@@ -23,6 +26,8 @@ interface ToolbarProps {
     selectedTool?: string;
     onToolSelect?: (tool: string) => void;
     onDownload?: () => void;
+    onSave?: () => void;
+    onUploadNew?: () => void;
 }
 
 
@@ -35,12 +40,15 @@ export default function Toolbar({
     onRotate,
     selectedTool,
     onToolSelect,
-    onDownload
+    onDownload,
+    onSave,
+    onUploadNew,
 }: ToolbarProps) {
 
     const tools = [
         { id: 'highlight', icon: Highlighter, label: 'Highlight' },
         { id: 'draw', icon: Pencil, label: 'Draw' },
+        { id: 'eraser', icon: Eraser, label: 'Eraser' },
         { id: 'text', icon: Type, label: 'Text' },
         { id: 'rectangle', icon: Square, label: 'Rectangle' },
         { id: 'circle', icon: Circle, label: 'Circle' },
@@ -80,8 +88,8 @@ export default function Toolbar({
                         key={tool.id}
                         onClick={() => onToolSelect?.(tool.id)}
                         className={`p-2 mx-1 rounded transition-colors ${selectedTool === tool.id
-                            ? 'bg-blue-200 text-blue-600'
-                            : 'hover:bg-blue-100'
+                            ? 'bg-orange-100 text-[#f08a6b]'
+                            : 'hover:bg-gray-100'
                             }`}
                         title={tool.label}
                     >
@@ -90,25 +98,51 @@ export default function Toolbar({
                 ))}
             </div>
 
-            {/* zoom & rotate */}
-            <div className="flex items-center gap-2">
-                <button onClick={() => onZoom(-0.1)} className="p-2 rounded hover:bg-gray-100">
+            {/* zoom, rotate & actions */}
+            <div className="flex items-center gap-1">
+                <button onClick={() => onZoom(-0.1)} className="p-2 rounded hover:bg-gray-100" title="Zoom out">
                     <ZoomOut size={20} />
                 </button>
 
                 <span className="text-sm w-12 text-center">{Math.round(scale * 100)}%</span>
 
-                <button onClick={() => onZoom(0.1)} className="p-2 rounded hover:bg-gray-100">
+                <button onClick={() => onZoom(0.1)} className="p-2 rounded hover:bg-gray-100" title="Zoom in">
                     <ZoomIn size={20} />
                 </button>
 
-                <button onClick={onRotate} className="p-2 rounded hover:bg-gray-100">
+                <button onClick={onRotate} className="p-2 rounded hover:bg-gray-100" title="Rotate">
                     <RotateCw size={20} />
                 </button>
 
+                <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                {onSave && (
+                    <button
+                        onClick={onSave}
+                        className="p-2 rounded hover:bg-green-50 hover:text-green-600 transition-colors"
+                        title="Save to browser"
+                    >
+                        <Save size={20} />
+                    </button>
+                )}
+
                 {onDownload && (
-                    <button onClick={onDownload} className="p-2 rounded hover:bg-gray-100">
+                    <button
+                        onClick={onDownload}
+                        className="p-2 rounded hover:bg-gray-100"
+                        title="Download annotated PDF"
+                    >
                         <Download size={20} />
+                    </button>
+                )}
+
+                {onUploadNew && (
+                    <button
+                        onClick={onUploadNew}
+                        className="p-2 rounded hover:bg-orange-50 hover:text-[#f08a6b] transition-colors"
+                        title="Upload new PDF"
+                    >
+                        <FolderOpen size={20} />
                     </button>
                 )}
             </div>

@@ -8,6 +8,7 @@ import usePDFStore from '@/store/pdfStore';
 import Toolbar from '@/components/toolbar/Toolbar';
 import PDFCanvas from '@/components/pdf/PDFCanvas';
 import NotesPanel from '@/components/notes/NotesPanel';
+import PDFDropzone from '@/components/pdf/PDFDropzone';
 import '@/lib/pdf-worker';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -26,7 +27,9 @@ export default function PDFViewer() {
   const [notes, setNotes] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showNotes, setShowNotes] = useState(true);
+  const [showDropzone, setShowDropzone] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
+  const [savedToast, setSavedToast] = useState(false);
 
   useEffect(() => {
     if (!file) return;
@@ -135,10 +138,46 @@ export default function PDFViewer() {
     URL.revokeObjectURL(url);
   };
 
+  const handleSave = () => {
+    if (!file) return;
+    // Save current page canvas state before persisting
+    const currentAnnotation = canvas ? JSON.stringify(canvas.toJSON()) : null;
+    const allAnnotations = currentAnnotation
+      ? { ...annotations, [pageNumber]: currentAnnotation }
+      : annotations;
+
+    const saveKey = `annot8_${file.name}`;
+    try {
+      localStorage.setItem(saveKey, JSON.stringify({
+        annotations: allAnnotations,
+        notes,
+        pageNumber,
+        savedAt: new Date().toISOString(),
+      }));
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 2000);
+    } catch (e) {
+      console.error('Failed to save to localStorage', e);
+    }
+  };
+
+  const handleUploadNew = () => {
+    setShowDropzone(true);
+  };
+
   if (!pdfUrl) return null;
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      {/* Saved toast */}
+      {savedToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm font-dm-sans px-5 py-2 rounded-full shadow-lg animate-fade-in">
+          ✓ Saved to browser
+        </div>
+      )}
+
+      {showDropzone && <PDFDropzone onClose={() => setShowDropzone(false)} />}
+
       <Toolbar
         pageNumber={pageNumber}
         numPages={numPages}
@@ -149,6 +188,8 @@ export default function PDFViewer() {
         selectedTool={selectedTool}
         onToolSelect={setSelectedTool}
         onDownload={handleDownload}
+        onSave={handleSave}
+        onUploadNew={handleUploadNew}
       />
 
       <div className={`flex flex-1 overflow-hidden ${isMobileView ? 'flex-col' : ''}`}>
