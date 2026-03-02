@@ -19,12 +19,6 @@ const Footer = () => {
                     <Link href="/guide" className="hover:text-gray-900 transition-colors">
                         How it works
                     </Link>
-                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">
-                        GitHub
-                    </a>
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">
-                        Twitter
-                    </a>
                 </div>
             </div>
         </footer>
